@@ -1,10 +1,17 @@
 package divyanshu.approximation;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -19,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     TextInputLayout til_function;
     TextInputLayout til_initial_x;
-    ListView lv_roots;
+    static List<Double> roots = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +35,12 @@ public class MainActivity extends AppCompatActivity {
 
         til_function = (TextInputLayout) findViewById(R.id.til_function);
         til_initial_x = (TextInputLayout) findViewById(R.id.til_initial_x);
-        lv_roots = (ListView) findViewById(R.id.lv_roots);
+        til_function.setErrorEnabled(true);
+        til_initial_x.setErrorEnabled(true);
 
     }
 
     public void calculate(View view) {
-
 
         String expression = "(" + til_function.getEditText().getText().toString() + ")";
         String initial_x = til_initial_x.getEditText().getText().toString();
@@ -62,30 +69,79 @@ public class MainActivity extends AppCompatActivity {
             }else
                 til_function.setError(null);
 
-            try {
-                Double.parseDouble(initial_x);
-                til_initial_x.setError(null);
-            }catch (Exception e){
-                til_initial_x.setError("Wrong syntax");
-                flag2 = false;
-            }
-
 
             if(flag2) {
-                ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE))
-                        .hideSoftInputFromInputMethod(view.getWindowToken(),0);
+                roots.clear();
 
-                List<String> roots = new ArrayList<>();
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, roots);
-                lv_roots.setAdapter(arrayAdapter);
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
                 for(int i=0; i<=15; ++i)
                 {
                     x.setArgumentValue(ex.calculate());
-                    roots.add(x.getArgumentValue() + "");
-                    arrayAdapter.notifyDataSetChanged();
+                    roots.add(x.getArgumentValue());
                 }
+
+                showAnswer();
             }
         }
+    }
+
+    private void showAnswer() {
+        final double avg = (roots.get(10) + roots.get(11) + roots.get(12) + roots.get(13) + roots.get(14))/5;
+        boolean error = false;
+
+        for(int i=10;i<=14;++i ){
+            if(Math.abs(avg - roots.get(i)) > 0.01)
+                error = true;
+        }
+
+        final TextView tv_answer = (TextView)findViewById(R.id.tv_answer);
+        final Animation in = new AlphaAnimation(0.0f, 1.0f);
+        in.setDuration(250);
+        final Animation out = new AlphaAnimation(1.0f, 0.0f);
+        out.setDuration(250);
+
+        if(error){
+            tv_answer.startAnimation(out);
+            out.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    tv_answer.setText("Answer oscillates too much");
+                    tv_answer.startAnimation(in);
+                }
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+        }
+        else{
+            tv_answer.startAnimation(out);
+            out.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    tv_answer.setText(avg + "");
+                    tv_answer.startAnimation(in);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            }
+    }
+
+    public void show_calculations(View view) {
+        final BottomSheetDialogFragment myBottomSheet = MyBottomSheetDialogFragment.newInstance(roots);
+        myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
     }
 }

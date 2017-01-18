@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Function"
-            android:inputType="text"/>
+            android:inputType="textNoSuggestions"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -45,11 +45,33 @@
         android:background="@color/colorAccent"
         android:onClick="calculate"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
+        android:layout_marginRight="16dp"/>
 
-    <ListView
-        android:id="@+id/lv_roots"
+    <RelativeLayout
         android:layout_height="wrap_content"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        android:background="#DCDCDC"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp">
+        <TextView
+            android:id="@+id/tv_answer"
+            android:text="Answer"
+            android:textSize="20sp"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent" />
+    </RelativeLayout>
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Show Calculations"
+        android:background="@color/colorAccent"
+        android:onClick="show_calculations"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
+
 </LinearLayout>
