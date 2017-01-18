@@ -1,20 +1,14 @@
 package divyanshu.approximation;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.mariuszgromada.math.mxparser.*;
@@ -27,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
     TextInputLayout til_function;
     TextInputLayout til_initial_x;
     static List<Double> roots = new ArrayList<>();
+    static String function = "";
+    static String initial_x = "";
+    static String data = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void calculate(View view) {
 
-        String expression = "(" + til_function.getEditText().getText().toString() + ")";
-        String initial_x = til_initial_x.getEditText().getText().toString();
+        function = "(" + til_function.getEditText().getText().toString() + ")";
+        initial_x = til_initial_x.getEditText().getText().toString();
+
         boolean flag = true;
 
-        if(expression.equals("()")){
-            til_function.setError("Enter function");
+        if(function.equals("()")){
+            til_function.setError("Enter function of x");
             flag = false;
         }else
             til_function.setError(null);
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(flag){
             Argument x = new Argument("x = " + initial_x);
-            Expression ex = new Expression("x - " + expression + "/" + "der(" + expression + ", x)" , x);
+            Expression ex = new Expression("x - " + function + "/" + "der(" + function + ", x)" , x);
             boolean flag2 = true;
 
             if(!ex.checkSyntax()){
@@ -73,7 +71,10 @@ public class MainActivity extends AppCompatActivity {
             if(flag2) {
                 roots.clear();
 
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                data = "f(x) = " + function.substring(1, function.length()-1)
+                        + "\nInitial x = " + initial_x;
+
+                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
                 for(int i=0; i<=15; ++i)
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    tv_answer.setText(avg + "");
+                    tv_answer.setText(roots.get(14) + "");
                     tv_answer.startAnimation(in);
                 }
 
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void show_calculations(View view) {
-        final BottomSheetDialogFragment myBottomSheet = MyBottomSheetDialogFragment.newInstance(roots);
+        final BottomSheetDialogFragment myBottomSheet = MyBottomSheetDialogFragment.newInstance(roots, data);
         myBottomSheet.show(getSupportFragmentManager(), myBottomSheet.getTag());
     }
 }
